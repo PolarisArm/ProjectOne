@@ -55,7 +55,7 @@ jobs:
     - name: Set up Buildozer spec file
       run: |
         # Copy your buildozer.spec file to the workspace if needed
-        cp path/to/your/buildozer.spec $GITHUB_WORKSPACE/
+        cp buildozer.spec $GITHUB_WORKSPACE/
 
     - name: Build the app using Buildozer
       run: |

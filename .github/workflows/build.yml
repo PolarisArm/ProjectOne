@@ -62,7 +62,7 @@ jobs:
         buildozer android debug
 
     - name: Upload APK as artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3  # Use version 3, as version 2 is deprecated
       with:
         name: android-apk
         path: bin/*.apk

@@ -47,7 +47,8 @@ jobs:
         yes | $HOME/android/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android --update
         yes | $HOME/android/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android "platform-tools"
         yes | $HOME/android/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android "platforms;android-29"
-        yes | $HOME/android/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android "ndk;21.3.6528147"  # Ensure the correct NDK version
+        yes | $HOME/android/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android "ndk;22.0.7026001"
+        # Ensure the correct NDK version
         yes | $HOME/android/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android "build-tools;29.0.3"
       
         # Verify that AIDL tool is installed by checking if the AIDL tool exists
@@ -61,7 +62,7 @@ jobs:
       
         # Set up environment variables for Android SDK/NDK
         echo "ANDROID_HOME=$HOME/android" >> $GITHUB_ENV
-        echo "ANDROID_NDK=$HOME/android/ndk/21.3.6528147" >> $GITHUB_ENV
+        echo "ANDROID_NDK=$HOME/android/ndk/22.0.7026001" >> $GITHUB_ENV
         echo "JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64" >> $GITHUB_ENV  # Set JAVA_HOME to OpenJDK 8
 
 

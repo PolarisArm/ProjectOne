@@ -27,6 +27,10 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y python3-pip python3-dev build-essential curl unzip
         sudo apt-get install -y openjdk-8-jdk  # Installing OpenJDK 8 for compatibility with NDK 21+
+        
+    - name: Install Cython
+      run: |
+        python3 -m pip install cython  # Install Cython here
 
     - name: Install Buildozer and dependencies
       run: |
@@ -52,7 +56,7 @@ jobs:
         echo "ANDROID_NDK=$HOME/android/ndk/21.3.6528147" >> $GITHUB_ENV
         echo "JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64" >> $GITHUB_ENV  # Set JAVA_HOME to OpenJDK 8
 
-   
+    
 
     - name: Build the app using Buildozer
       run: |

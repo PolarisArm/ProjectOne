@@ -36,35 +36,36 @@ jobs:
       run: |
         python3 -m pip install --upgrade pip
         python3 -m pip install buildozer
+
     - name: Install Android SDK and NDK
       run: |
         # Install Android SDK command-line tools
         curl -sS https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip -o commandlinetools.zip
         unzip commandlinetools.zip -d $HOME/android
         rm commandlinetools.zip
-    
+
         # Accept Android SDK licenses automatically
         yes | $HOME/android/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android --licenses
-    
+        
         # Install the necessary SDK components
         yes | $HOME/android/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android --update
         yes | $HOME/android/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android "platform-tools"
         yes | $HOME/android/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android "platforms;android-29"
         yes | $HOME/android/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android "build-tools;29.0.3"
         
-        # Install specific NDK version (e.g., 21.3.6528147 or another version)
+        # Install a specific NDK version and ensure AIDL is available
         yes | $HOME/android/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android "ndk;21.3.6528147"
+
+        # If NDK installation is not correct, install it explicitly
+        yes | $HOME/android/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android "ndk;22.0.7026001"
+
+        # Confirming AIDL tool is available with proper installation
+        ls $HOME/android/ndk/21.3.6528147/tools/aidl  # Verifying the presence of AIDL
         
-        # Ensure that AIDL is available with the correct SDK tools
-        yes | $HOME/android/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android "ndk-bundle"
-    
         # Set up environment variables for Android SDK/NDK
         echo "ANDROID_HOME=$HOME/android" >> $GITHUB_ENV
         echo "ANDROID_NDK=$HOME/android/ndk/21.3.6528147" >> $GITHUB_ENV
         echo "JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64" >> $GITHUB_ENV  # Set JAVA_HOME to OpenJDK 8
-
-
-
 
     - name: Build the app using Buildozer
       run: |

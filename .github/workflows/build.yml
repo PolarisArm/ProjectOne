@@ -23,11 +23,10 @@ jobs:
 
     - name: Install required dependencies
       run: |
-        # Install necessary dependencies
         sudo apt-get update
         sudo apt-get install -y python3-pip python3-dev build-essential curl unzip
-        sudo apt-get install -y openjdk-8-jdk  # Installing OpenJDK 8 for compatibility with NDK 21+
-        
+        sudo apt-get install -y openjdk-8-jdk  # Installing OpenJDK 8 for compatibility
+
     - name: Install Cython
       run: |
         python3 -m pip install cython  # Install Cython here
@@ -40,31 +39,35 @@ jobs:
     - name: Install Android SDK and NDK
       run: |
         # Install Android SDK command-line tools
-        curl -sS https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip -o commandlinetools.zip
-        unzip commandlinetools.zip -d $HOME/android
+        curl -sS https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -o commandlinetools.zip
+        mkdir -p $HOME/android/cmdline-tools/latest
+        unzip commandlinetools.zip -d $HOME/android/cmdline-tools/latest
         rm commandlinetools.zip
 
-        # Accept Android SDK licenses automatically
-        yes | $HOME/android/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android --licenses
+        # Accept all Android SDK licenses automatically
+        yes | $HOME/android/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/android --licenses
         
-        # Install the necessary SDK components
-        yes | $HOME/android/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android --update
-        yes | $HOME/android/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android "platform-tools"
-        yes | $HOME/android/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android "platforms;android-29"
-        yes | $HOME/android/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android "build-tools;29.0.3"
-        
-        # Install a specific NDK version and ensure AIDL is available
-        yes | $HOME/android/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android "ndk;27.2.12479018"
+        # Install required SDK components
+        yes | $HOME/android/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/android --update
+        yes | $HOME/android/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/android "platform-tools"
+        yes | $HOME/android/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/android "platforms;android-31"
+        yes | $HOME/android/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/android "build-tools;31.0.0"
 
-        # If NDK installation is not correct, install it explicitly
-        yes | $HOME/android/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android "ndk;27.2.12479018"
+        # Install a compatible NDK version (e.g., 21.3.6528147)
+        yes | $HOME/android/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/android "ndk;21.3.6528147"
 
-        # Confirming AIDL tool is available with proper installation
-        ls $HOME/android/ndk/27.2.12479018/tools/aidl  # Verifying the presence of AIDL
+        # Install aidl (now part of the SDK tools)
+        yes | $HOME/android/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/android "cmdline-tools;latest"
         
+        # Verify aidl installation
+        if [ ! -f $HOME/android/cmdline-tools/latest/bin/aidl ]; then
+          echo "AIDL installation failed"
+          exit 1
+        fi
+
         # Set up environment variables for Android SDK/NDK
         echo "ANDROID_HOME=$HOME/android" >> $GITHUB_ENV
-        echo "ANDROID_NDK=$HOME/android/ndk/27.2.12479018" >> $GITHUB_ENV
+        echo "ANDROID_NDK=$HOME/android/ndk/21.3.6528147" >> $GITHUB_ENV
         echo "JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64" >> $GITHUB_ENV  # Set JAVA_HOME to OpenJDK 8
 
     - name: Build the app using Buildozer
@@ -72,7 +75,7 @@ jobs:
         buildozer android debug
 
     - name: Upload APK as artifact
-      uses: actions/upload-artifact@v3  # Use version 3, as version 2 is deprecated
+      uses: actions/upload-artifact@v3
       with:
         name: android-apk
         path: bin/*.apk

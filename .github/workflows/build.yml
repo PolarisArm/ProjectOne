@@ -12,9 +12,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      # Checkout the code using the latest version
+      - uses: actions/checkout@v3
 
-      # used to cache dependencies with a timeout
+      # Clean up Git authentication headers
+      - name: Clean up Git config
+        run: |
+          git config --global --unset http.https://github.com/.extraheader || echo "No extraheader to unset"
+
+      # Used to cache dependencies with a timeout
       - name: Get Date
         id: get-date
         run: |
@@ -25,9 +31,10 @@ jobs:
         uses: actions/cache@v3
         with:
           path: .buildozer_global
-          key: buildozer-global-${{ hashFiles('buildozer.spec') }} # Replace with your path
+          key: buildozer-global-${{ hashFiles('buildozer.spec') }}
 
-      - uses: actions/cache@v3
+      - name: Cache Buildozer directory
+        uses: actions/cache@v3
         with:
           path: .buildozer
           key: ${{ runner.os }}-${{ env.date }}-${{ hashFiles('buildozer.spec') }}

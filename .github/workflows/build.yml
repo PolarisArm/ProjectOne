@@ -60,7 +60,7 @@ jobs:
         yes | $HOME/android/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android "ndk;27.2.12479018"
 
         # Confirming AIDL tool is available with proper installation
-        ls $HOME/android/ndk/21.3.6528147/tools/aidl  # Verifying the presence of AIDL
+        ls $HOME/android/ndk/27.2.12479018/tools/aidl  # Verifying the presence of AIDL
         
         # Set up environment variables for Android SDK/NDK
         echo "ANDROID_HOME=$HOME/android" >> $GITHUB_ENV

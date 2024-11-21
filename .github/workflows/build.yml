@@ -36,27 +36,34 @@ jobs:
       run: |
         python3 -m pip install --upgrade pip
         python3 -m pip install buildozer
-
     - name: Install Android SDK and NDK
       run: |
         # Install Android SDK command-line tools
         curl -sS https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip -o commandlinetools.zip
         unzip commandlinetools.zip -d $HOME/android
         rm commandlinetools.zip
-
+      
         # Install the necessary SDK components
         yes | $HOME/android/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android --update
         yes | $HOME/android/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android "platform-tools"
         yes | $HOME/android/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android "platforms;android-29"
-        yes | $HOME/android/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android "ndk;21.3.6528147"
+        yes | $HOME/android/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android "ndk;21.3.6528147"  # Ensure the correct NDK version
         yes | $HOME/android/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android "build-tools;29.0.3"
-
+      
+        # Verify that AIDL tool is installed by checking if the AIDL tool exists
+        echo "Verifying AIDL installation..."
+        if [ -f "$HOME/android/ndk/21.3.6528147/aidl" ]; then
+          echo "AIDL tool is installed."
+        else
+          echo "AIDL tool is missing! Please check the NDK installation."
+          exit 1
+        fi
+      
         # Set up environment variables for Android SDK/NDK
         echo "ANDROID_HOME=$HOME/android" >> $GITHUB_ENV
         echo "ANDROID_NDK=$HOME/android/ndk/21.3.6528147" >> $GITHUB_ENV
         echo "JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64" >> $GITHUB_ENV  # Set JAVA_HOME to OpenJDK 8
 
-    
 
     - name: Build the app using Buildozer
       run: |

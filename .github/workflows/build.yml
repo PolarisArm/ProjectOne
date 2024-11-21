@@ -54,17 +54,17 @@ jobs:
         yes | $HOME/android/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android "build-tools;29.0.3"
         
         # Install a specific NDK version and ensure AIDL is available
-        yes | $HOME/android/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android "ndk;21.3.6528147"
+        yes | $HOME/android/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android "ndk;27.2.12479018"
 
         # If NDK installation is not correct, install it explicitly
-        yes | $HOME/android/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android "ndk;22.0.7026001"
+        yes | $HOME/android/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android "ndk;27.2.12479018"
 
         # Confirming AIDL tool is available with proper installation
         ls $HOME/android/ndk/21.3.6528147/tools/aidl  # Verifying the presence of AIDL
         
         # Set up environment variables for Android SDK/NDK
         echo "ANDROID_HOME=$HOME/android" >> $GITHUB_ENV
-        echo "ANDROID_NDK=$HOME/android/ndk/21.3.6528147" >> $GITHUB_ENV
+        echo "ANDROID_NDK=$HOME/android/ndk/27.2.12479018" >> $GITHUB_ENV
         echo "JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64" >> $GITHUB_ENV  # Set JAVA_HOME to OpenJDK 8
 
     - name: Build the app using Buildozer

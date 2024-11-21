@@ -43,21 +43,26 @@ jobs:
         unzip commandlinetools.zip -d $HOME/android
         rm commandlinetools.zip
     
+        # Accept Android SDK licenses automatically
+        yes | $HOME/android/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android --licenses
+    
         # Install the necessary SDK components
         yes | $HOME/android/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android --update
         yes | $HOME/android/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android "platform-tools"
         yes | $HOME/android/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android "platforms;android-29"
-        
-        # Install specific NDK version (update to available version if necessary)
-        yes | $HOME/android/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android "ndk;21.3.6528147"
-    
-        # Install build tools for compatibility
         yes | $HOME/android/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android "build-tools;29.0.3"
+        
+        # Install specific NDK version (e.g., 21.3.6528147 or another version)
+        yes | $HOME/android/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android "ndk;21.3.6528147"
+        
+        # Ensure that AIDL is available with the correct SDK tools
+        yes | $HOME/android/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android "ndk-bundle"
     
         # Set up environment variables for Android SDK/NDK
         echo "ANDROID_HOME=$HOME/android" >> $GITHUB_ENV
         echo "ANDROID_NDK=$HOME/android/ndk/21.3.6528147" >> $GITHUB_ENV
         echo "JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64" >> $GITHUB_ENV  # Set JAVA_HOME to OpenJDK 8
+
 
 
 

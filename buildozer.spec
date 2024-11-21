@@ -40,7 +40,10 @@ android.api = 31
 android.minapi = 21
 
 # (int) Android SDK version to use
-android.sdk = 20
+android.sdk = 29
+# (int) Android NDK version to use
+android.ndk = 22.0.7026001  # NDK version compatible with the SDK version you're targeting
+
 
 # (str) Android entry point, default is ok for Kivy-based app
 android.entrypoint = org.kivy.android.PythonActivity

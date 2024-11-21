@@ -1,53 +1,68 @@
-name: CI
+name: Build Android App with Buildozer
+
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
-  schedule:
-    - cron: '0 0 1,15 * *'
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout the code using the latest version
-      - uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-      # Clean up Git authentication headers
-      - name: Clean up Git config
-        run: |
-          git config --global --unset http.https://github.com/.extraheader || echo "No extraheader to unset"
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.8'
 
-      # Used to cache dependencies with a timeout
-      - name: Get Date
-        id: get-date
-        run: |
-          echo "date=$(date -u '+%Y%m%d')" >> $GITHUB_ENV
-        shell: bash
+    - name: Install required dependencies
+      run: |
+        # Install necessary dependencies
+        sudo apt-get update
+        sudo apt-get install -y python3-pip python3-dev build-essential curl unzip
+        sudo apt-get install -y openjdk-8-jdk  # Installing OpenJDK 8 for compatibility with NDK 21+
 
-      - name: Cache Buildozer global directory
-        uses: actions/cache@v3
-        with:
-          path: .buildozer_global
-          key: buildozer-global-${{ hashFiles('buildozer.spec') }}
+    - name: Install Buildozer and dependencies
+      run: |
+        python3 -m pip install --upgrade pip
+        python3 -m pip install buildozer
 
-      - name: Cache Buildozer directory
-        uses: actions/cache@v3
-        with:
-          path: .buildozer
-          key: ${{ runner.os }}-${{ env.date }}-${{ hashFiles('buildozer.spec') }}
+    - name: Install Android SDK and NDK
+      run: |
+        # Install Android SDK command-line tools
+        curl -sS https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip -o commandlinetools.zip
+        unzip commandlinetools.zip -d $HOME/android
+        rm commandlinetools.zip
 
-      - name: Build with Buildozer
-        uses: ArtemSBulgakov/buildozer-action@v1
-        id: buildozer
-        with:
-          command: buildozer android debug
-          buildozer_version: master
+        # Install the necessary SDK components
+        yes | $HOME/android/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android --update
+        yes | $HOME/android/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android "platform-tools"
+        yes | $HOME/android/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android "platforms;android-29"
+        yes | $HOME/android/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android "ndk;21.3.6528147"
+        yes | $HOME/android/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android "build-tools;29.0.3"
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: package
-          path: ${{ steps.buildozer.outputs.filename }}
+        # Set up environment variables for Android SDK/NDK
+        echo "ANDROID_HOME=$HOME/android" >> $GITHUB_ENV
+        echo "ANDROID_NDK=$HOME/android/ndk/21.3.6528147" >> $GITHUB_ENV
+        echo "JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64" >> $GITHUB_ENV  # Set JAVA_HOME to OpenJDK 8
+
+    - name: Set up Buildozer spec file
+      run: |
+        # Copy your buildozer.spec file to the workspace if needed
+        cp path/to/your/buildozer.spec $GITHUB_WORKSPACE/
+
+    - name: Build the app using Buildozer
+      run: |
+        buildozer android debug
+
+    - name: Upload APK as artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: android-apk
+        path: bin/*.apk
